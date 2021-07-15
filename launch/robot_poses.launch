@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <arg name="model" default="$(find ur5e_description)/urdf/ur5e.urdf.xacro"/>
+    <param name="urdf_model" command="$(find xacro)/xacro --inorder $(arg model)" />
+
+    <param name="camera_topic" command="/camera/color/image_raw" />
+    <param name="js_state_topic" command="/joint_states" />
+
+    <node pkg="arm_camera_calibration" type="robot_node" name="robot_node" output="screen" />
+
+</launch>
