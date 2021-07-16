@@ -42,6 +42,7 @@
 
 class RobotNode {
 
+		int N;
 		int RATE;
         bool isImageReceived;
 		std::vector<double> q;
@@ -65,12 +66,13 @@ public:
 
 		/* Empty constructor */
 		RobotNode() : nh("~") {
+			N = 6;
+
             isImageReceived = false;
-			
 			ros::param::get("urdf_model", urdf);
 			nh.param<int>("/rate", RATE, 50);
 			nh.param<std::string>("/camera_topic", camera_topic, "/camera/color/image_raw");
-			nh.param<std::string>("/js_state_topic", js_state_topic, "/iiwa/joint_states");
+			nh.param<std::string>("/js_state_topic", js_state_topic, "/joint_states");
 			nh.param<std::string>("/base_link", base_link, "base_link");
 			nh.param<std::string>("/tool_link", tool_link, "flange");
 
@@ -82,9 +84,11 @@ public:
 			cam.initPersProjWithoutDistortion(px, py, u0, v0);
 			std::cout << cam << std::endl;
 
+			// std::cout << camera_topic << std::endl;
             imageSub = nh.subscribe(camera_topic, 1, &RobotNode::image_callback, this);
 			js_state_Sub = nh.subscribe(js_state_topic, 1, &RobotNode::js_state_callback, this);
-			for (int i = 0; i < 6; ++i) { // WARN dim
+
+			for (int i = 0; i < N; ++i) { // WARN dim
 				q.push_back(0);
 			}
 
@@ -102,7 +106,7 @@ public:
 		}
 
 		void js_state_callback(const sensor_msgs::JointState::ConstPtr &msg) {
-			for (int i = 0; i < 6; i++) {	// WARN dim
+			for (int i = 0; i < N; i++) {	// WARN dim
 				q[i] = msg->position[i];
 			}
 		}
@@ -143,7 +147,8 @@ public:
 			ROS_INFO("tip_name:  %s",tool_link.c_str());
 			ROS_INFO("root_name: %s",base_link.c_str());
 			
-			KDL::ChainFkSolverPos_recursive FKSolver = KDL::ChainFkSolverPos_recursive(chain);
+			KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(chain);
+
 			
             unsigned cpt = 0;
             bool end = false;
@@ -165,10 +170,18 @@ public:
 
                         vpPoseVector fPe;
 						
+						KDL::JntArray q_kdl(N);
+						for (int i = 0; i < N; ++i) {
+							q_kdl(i) = q[i];
+						}
 
-						// KDL::Frame eeFrame;
-						// KDL::FKSolver.JntToCart(q, eeFrame);
-						// std::cout << eeFrame << std::endl;
+						KDL::Frame eeFrame;
+						fksolver.JntToCart(q_kdl, eeFrame);
+
+						double r, p, y;
+						eeFrame.M.GetRPY(r, p, y);
+
+                        vpPoseVector fPe(eeFrame.p.data[0], eeFrame.p.data[1], eeFrame.p.data[2], r, p, y);
 
                         std::stringstream ss_img, ss_pos;
 
