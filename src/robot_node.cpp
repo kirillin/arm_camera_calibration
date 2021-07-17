@@ -75,8 +75,8 @@ public:
 			nh.param<std::string>("/js_state_topic", js_state_topic, "/joint_states");
 			// nh.param<std::string>("/base_link", base_link, "base");
 			// nh.param<std::string>("/tool_link", tool_link, "tool0");
-			base_link = "base"
-			tool_link = "tool0"
+			base_link = "base";
+			tool_link = "tool0";
 
 			double px = 605.8006591796875;
 			double py = 606.1141967773438;
@@ -155,8 +155,8 @@ public:
 			ROS_INFO("tip_name:  %s",tool_link.c_str());
 			ROS_INFO("root_name: %s",base_link.c_str());
 			
-			// KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(chain);
-			KDL::ChainFkSolverAcc fksolver = KDL::ChainFkSolverAcc(chain);
+			KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(chain);
+			// KDL::ChainFkSolverAcc fksolver = KDL::ChainFkSolverAcc(chain);
 
             unsigned cpt = 0;
             bool end = false;
