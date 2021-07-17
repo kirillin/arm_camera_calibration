@@ -85,8 +85,12 @@ public:
 			std::cout << cam << std::endl;
 
 			// std::cout << camera_topic << std::endl;
-            imageSub = nh.subscribe(camera_topic, 1, &RobotNode::image_callback, this);
-			js_state_Sub = nh.subscribe(js_state_topic, 1, &RobotNode::js_state_callback, this);
+            // imageSub = nh.subscribe(camera_topic, 1, &RobotNode::image_callback, this);
+			// js_state_Sub = nh.subscribe(js_state_topic, 1, &RobotNode::js_state_callback, this);
+
+            imageSub = nh.subscribe("/camera/color/image_raw", 1, &RobotNode::image_callback, this);
+			js_state_Sub = nh.subscribe("/joint_states", 1, &RobotNode::js_state_callback, this);
+
 
 			for (int i = 0; i < N; ++i) { // WARN dim
 				q.push_back(0);
@@ -167,19 +171,20 @@ public:
 
                     if (button == vpMouseButton::button1) {
                         cpt ++;
-
-                        vpPoseVector fPe;
 						
 						KDL::JntArray q_kdl(N);
 						for (int i = 0; i < N; ++i) {
 							q_kdl(i) = q[i];
+							std::cout << q[i] << " ";
 						}
+						std::cout << std::endl;
 
 						KDL::Frame eeFrame;
 						fksolver.JntToCart(q_kdl, eeFrame);
 
 						double r, p, y;
 						eeFrame.M.GetRPY(r, p, y);
+						// std::cout << eeFrame.p.data[0] << eeFrame.p.data[1] << eeFrame.p.data[2] << std::endl;
 
                         vpPoseVector fPe(eeFrame.p.data[0], eeFrame.p.data[1], eeFrame.p.data[2], r, p, y);
 
