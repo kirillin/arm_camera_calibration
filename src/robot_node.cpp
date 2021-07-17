@@ -10,6 +10,7 @@
 #include <kdl_parser/kdl_parser.hpp>
 
 #include <iostream>
+#include <fstream>
 #include <cmath>
 
 #include <ros/ros.h>
@@ -30,9 +31,6 @@
 #include <visp3/core/vpXmlParserCamera.h>
 #include <visp3/core/vpPolygon.h>
 #include <visp3/io/vpImageIo.h>
-
-
-
 
 
 // добавить urdf
@@ -62,6 +60,8 @@ class RobotNode {
 
 		vpCameraParameters cam;
 
+		std::ofstream ur_poses_file;
+
 public:
 
 		/* Empty constructor */
@@ -73,9 +73,10 @@ public:
 			nh.param<int>("/rate", RATE, 50);
 			nh.param<std::string>("/camera_topic", camera_topic, "/camera/color/image_raw");
 			nh.param<std::string>("/js_state_topic", js_state_topic, "/joint_states");
-			nh.param<std::string>("/base_link", base_link, "base_link");
-			nh.param<std::string>("/tool_link", tool_link, "flange");
-
+			// nh.param<std::string>("/base_link", base_link, "base");
+			// nh.param<std::string>("/tool_link", tool_link, "tool0");
+			base_link = "base"
+			tool_link = "tool0"
 
 			double px = 605.8006591796875;
 			double py = 606.1141967773438;
@@ -85,20 +86,27 @@ public:
 			std::cout << cam << std::endl;
 
 			// std::cout << camera_topic << std::endl;
-            imageSub = nh.subscribe(camera_topic, 1, &RobotNode::image_callback, this);
-			js_state_Sub = nh.subscribe(js_state_topic, 1, &RobotNode::js_state_callback, this);
+            // imageSub = nh.subscribe(camera_topic, 1, &RobotNode::image_callback, this);
+			// js_state_Sub = nh.subscribe(js_state_topic, 1, &RobotNode::js_state_callback, this);
+
+            imageSub = nh.subscribe("/camera/color/image_raw", 1, &RobotNode::image_callback, this);
+			js_state_Sub = nh.subscribe("/joint_states", 1, &RobotNode::js_state_callback, this);
+
 
 			for (int i = 0; i < N; ++i) { // WARN dim
 				q.push_back(0);
 			}
 
+			ur_poses_file.open("~/ur_calibration_poses.txt");
 
             ROS_INFO("robot_node started");
 			ROS_WARN("!!! Joint states dim are hardcoded to 6 (six)");
 		}
 
 		/* Destructor */
-		~RobotNode() {}
+		~RobotNode() {
+			ur_poses_file.close();
+		}
 
 		void image_callback(const sensor_msgs::Image::ConstPtr &msg) {
 			I = visp_bridge::toVispImage(*msg);
@@ -147,9 +155,9 @@ public:
 			ROS_INFO("tip_name:  %s",tool_link.c_str());
 			ROS_INFO("root_name: %s",base_link.c_str());
 			
-			KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(chain);
+			// KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(chain);
+			KDL::ChainFkSolverAcc fksolver = KDL::ChainFkSolverAcc(chain);
 
-			
             unsigned cpt = 0;
             bool end = false;
 			ros::Rate R(RATE);
@@ -167,19 +175,20 @@ public:
 
                     if (button == vpMouseButton::button1) {
                         cpt ++;
-
-                        vpPoseVector fPe;
 						
 						KDL::JntArray q_kdl(N);
 						for (int i = 0; i < N; ++i) {
 							q_kdl(i) = q[i];
+							std::cout << q[i] << " ";
 						}
+						std::cout << std::endl;
 
 						KDL::Frame eeFrame;
 						fksolver.JntToCart(q_kdl, eeFrame);
 
 						double r, p, y;
 						eeFrame.M.GetRPY(r, p, y);
+						// std::cout << eeFrame.p.data[0] << eeFrame.p.data[1] << eeFrame.p.data[2] << std::endl;
 
                         vpPoseVector fPe(eeFrame.p.data[0], eeFrame.p.data[1], eeFrame.p.data[2], r, p, y);
 

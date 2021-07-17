@@ -1,0 +1,20 @@
+[ INFO] [1626527640.986268710]: tip_name:  tool0
+[ INFO] [1626527640.986287726]: root_name: base
+2.75782 -1.53954 1.0681 -3.40188 -1.34434 -0.383751 
+Save: image-1.png and pose_fPe_1.yaml
+2.28283 -1.67904 1.22475 -2.44186 -1.50611 -0.383787 
+Save: image-2.png and pose_fPe_2.yaml
+1.29354 -1.08912 1.38722 -1.38859 -1.64809 -0.222227 
+Save: image-3.png and pose_fPe_3.yaml
+0.09702 -0.383229 1.41791 -0.606725 -1.68888 -0.162179 
+Save: image-4.png and pose_fPe_4.yaml
+1.44915 -1.04087 0.727799 -1.29507 -1.14958 -0.999209 
+Save: image-5.png and pose_fPe_5.yaml
+1.75091 -1.37845 0.959844 -1.71546 -1.2898 -0.663152 
+Save: image-6.png and pose_fPe_6.yaml
+1.72896 -1.52486 1.32442 -1.7438 -1.54693 -0.279963 
+Save: image-7.png and pose_fPe_7.yaml
+1.73793 -1.34163 1.91971 -1.84678 -2.09579 0.327487 
+Save: image-8.png and pose_fPe_8.yaml
+1.54282 -1.02147 2.09834 -1.34254 -2.50631 0.916007 
+Save: image-9.png and pose_fPe_9.yaml
